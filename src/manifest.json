@@ -1,0 +1,11 @@
+{
+    "manifest_version": 2,
+    "name": "PageSpeed Saver",
+    "version": "1.0",
+    "description": "Quickly save your PageSpeed Insights reports to JSON.",
+    "web_accessible_resources": ["bundle.js"],
+    "content_scripts" : [{
+      "matches" : [ "https://developers.google.com/speed/pagespeed/insights*"],
+      "js" : ["index.js"]
+    }]
+  }
