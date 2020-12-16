@@ -1,8 +1,18 @@
-// PageSpeed Saver 1.2
+// PageSpeed Saver 1.3
 // @defaced
 (() => {
+  const pageSpeedSaverReset = () => {
+    window.pageSpeedSaverMobile = null
+    window.pageSpeedSaverDesktop = null
+    const saver = document.getElementById('pageSpeedSaver')
+    const status = document.getElementById('pageSpeedSaverStatus')
+    if (status) { status.remove() }
+    if (saver) { saver.remove() }
+  }
+
   const { fetch: origFetch } = window
   window.fetch = async (...args) => {
+    if (document.getElementById('pageSpeedSaver') || document.getElementById('pageSpeedSaverStatus')) { pageSpeedSaverReset() }
     const response = await origFetch(...args)
     response
       .clone()
@@ -18,15 +28,6 @@
     document.getElementsByClassName('url-and-analyze')[0].insertAdjacentHTML('afterend', html)
   }
 
-  const pageSpeedSaverReset = () => {
-    window.pageSpeedSaverMobile = null
-    window.pageSpeedSaverDesktop = null
-    const saver = document.getElementById('pageSpeedSaver')
-    const status = document.getElementById('pageSpeedSaverStatus')
-    if (status) { status.remove() }
-    if (saver) { saver.remove() }
-  }
-
   const pageSpeedSaver = (content) => {
     if (content.kind === 'pagespeedonline#result') {
       if (content.lighthouseResult.configSettings.emulatedFormFactor === 'desktop') {
@@ -36,8 +37,6 @@
         window.pageSpeedSaverMobile = content
         pageSpeedSaveHTML()
       }
-    } else {
-      pageSpeedSaverReset()
     }
   }
 
