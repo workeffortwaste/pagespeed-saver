@@ -78,11 +78,11 @@
     document.getElementsByClassName('pagespeed-results')[0].insertAdjacentHTML('beforebegin', html)
 
     document.getElementById('pageSpeedSaverMobile').addEventListener('click', e => {
-      FileSaver.saveAs(new Blob([JSON.stringify(window.pageSpeedSaverMobile)]), 'pagespeed-saver-json-mobile.json')
+      FileSaver.saveAs(new Blob([JSON.stringify(window.pageSpeedSaverMobile.lighthouseResult)]), 'pagespeed-saver-json-mobile.json')
     })
 
     document.getElementById('pageSpeedSaverDesktop').addEventListener('click', e => {
-      FileSaver.saveAs(new Blob([JSON.stringify(window.pageSpeedSaverDesktop)]), 'pagespeed-saver-json-desktop.json')
+      FileSaver.saveAs(new Blob([JSON.stringify(window.pageSpeedSaverDesktop.lighthouseResult)]), 'pagespeed-saver-json-desktop.json')
     })
   }
 })()
