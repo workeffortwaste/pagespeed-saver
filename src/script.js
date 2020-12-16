@@ -31,8 +31,10 @@
     if (content.kind === 'pagespeedonline#result') {
       if (content.lighthouseResult.configSettings.emulatedFormFactor === 'desktop') {
         window.pageSpeedSaverDesktop = content
+        pageSpeedSaveHTML()
       } else {
         window.pageSpeedSaverMobile = content
+        pageSpeedSaveHTML()
       }
     } else {
       pageSpeedSaverReset()
@@ -42,6 +44,7 @@
   const FileSaver = require('file-saver')
 
   const pageSpeedSaveHTML = () => {
+    if (!window.pageSpeedSaverMobile || !window.pageSpeedSaverMobile) { return }
     const html = `
         <style>
         #pageSpeedSaver {
