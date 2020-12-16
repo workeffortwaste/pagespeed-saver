@@ -1,4 +1,4 @@
-// PageSpeed Saver 1.0
+// PageSpeed Saver 1.2
 // @defaced
 (() => {
   const { fetch: origFetch } = window
@@ -19,6 +19,8 @@
   }
 
   const pageSpeedSaverReset = () => {
+    window.pageSpeedSaverMobile = null
+    window.pageSpeedSaverDesktop = null
     const saver = document.getElementById('pageSpeedSaver')
     const status = document.getElementById('pageSpeedSaverStatus')
     if (status) { status.remove() }
@@ -28,7 +30,6 @@
   const pageSpeedSaver = (content) => {
     if (content.kind === 'pagespeedonline#result') {
       if (content.lighthouseResult.configSettings.emulatedFormFactor === 'desktop') {
-        pageSpeedSaveHTML()
         window.pageSpeedSaverDesktop = content
       } else {
         window.pageSpeedSaverMobile = content
