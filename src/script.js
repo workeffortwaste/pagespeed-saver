@@ -1,4 +1,4 @@
-// PageSpeed Saver 1.2.1
+// PageSpeed Saver 1.2.2
 // @defaced
 (() => {
   const pageSpeedSaverReset = () => {
@@ -7,7 +7,7 @@
     const saver = document.getElementById('pageSpeedSaver')
     const status = document.getElementById('pageSpeedSaverStatus')
     if (status) { status.remove() }
-    if (saver) { saver.remove() }
+    if (saver) { saver.remove(); document.getElementById('pageSpeedStyles').remove() }
   }
 
   const { fetch: origFetch } = window
@@ -43,9 +43,9 @@
   const FileSaver = require('file-saver')
 
   const pageSpeedSaveHTML = () => {
-    if (!window.pageSpeedSaverMobile || !window.pageSpeedSaverMobile) { return }
+    if (window.pageSpeedSaverMobile || window.pageSpeedSaverMobile) { return }
     const html = `
-        <style>
+        <style id="pageSpeedStyles">
         #pageSpeedSaver {
             position: absolute;
             z-index: 999999999;
