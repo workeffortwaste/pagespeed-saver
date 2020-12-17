@@ -1,4 +1,4 @@
-// PageSpeed Saver 1.3
+// PageSpeed Saver 1.2.1
 // @defaced
 (() => {
   const pageSpeedSaverReset = () => {

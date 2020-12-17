@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "PageSpeed Saver",
-    "version": "1.3",
+    "version": "1.2.1",
     "icons": { "128": "icon128.png"},
     "description": "Quickly save your PageSpeed Insights reports to JSON.",
     "web_accessible_resources": ["bundle.js"],
