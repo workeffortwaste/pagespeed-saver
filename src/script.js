@@ -1,4 +1,4 @@
-// PageSpeed Saver 1.2.2
+// PageSpeed Saver 1.2.3
 // @defaced
 (() => {
   const pageSpeedSaverReset = () => {
@@ -32,9 +32,11 @@
     if (content.kind === 'pagespeedonline#result') {
       if (content.lighthouseResult.configSettings.emulatedFormFactor === 'desktop') {
         window.pageSpeedSaverDesktop = content
-        pageSpeedSaveHTML()
       } else {
         window.pageSpeedSaverMobile = content
+      }
+      /* When both the window variables are set load the HTML */
+      if (window.pageSpeedSaverDesktop && window.pageSpeedSaverMobile) {
         pageSpeedSaveHTML()
       }
     }
@@ -43,7 +45,6 @@
   const FileSaver = require('file-saver')
 
   const pageSpeedSaveHTML = () => {
-    if (window.pageSpeedSaverMobile || window.pageSpeedSaverMobile) { return }
     const html = `
         <style id="pageSpeedStyles">
         #pageSpeedSaver {
