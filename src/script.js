@@ -1,4 +1,4 @@
-// PageSpeed Saver 2.0.3
+// PageSpeed Saver 2.0.4
 // @defaced
 (() => {
   /* Libaries */
