@@ -161,7 +161,7 @@
   linkOpen.querySelector('span').textContent = 'Open Report'
   linkDiff.querySelector('a').setAttribute('href', 'https://googlechrome.github.io/lighthouse-ci/viewer/')
   linkDiff.querySelector('span').textContent = 'Compare Reports'
-  link.after(linkOpen)
-  link.after(linkDiff)
+  link.before(linkOpen)
+  link.before(linkDiff)
   document.body.insertAdjacentHTML('beforeend', escapeHTMLPolicy.createHTML(htmlMenu))
 })()
