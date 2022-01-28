@@ -1,5 +1,7 @@
 
-# PageSpeed Saver
+# PageSpeed Saver - Chrome Extension
+
+[https://defaced.dev/tools/pagespeed-saver/](https://defaced.dev/tools/pagespeed-saver/)
 
 A Chrome Extension that adds a `Download Report` button to PageSpeed Insights performance reports allowing you to easily download the raw Lighthouse JSON data.
 
