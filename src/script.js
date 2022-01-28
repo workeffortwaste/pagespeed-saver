@@ -126,12 +126,10 @@
       const button = [...document.querySelectorAll(`*[aria-labelledby="${device}_tab"] .pageSpeed_button`)].pop()
       if (device === 'desktop') {
         button.addEventListener('click', e => {
-          console.log('bep')
           FileSaver.saveAs(new Blob([JSON.stringify(window.pageSpeedSaverDesktop)]), 'pagespeed-saver-json-mobile.json')
         })
       } else {
         button.addEventListener('click', e => {
-          console.log('bep')
           FileSaver.saveAs(new Blob([JSON.stringify(window.pageSpeedSaverMobile)]), 'pagespeed-saver-json-mobile.json')
         })
       }
