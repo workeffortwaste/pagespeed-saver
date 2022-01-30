@@ -3,6 +3,7 @@
 (() => {
   /* Libaries */
   const FileSaver = require('file-saver')
+  const slugify = require('slugify')
 
   /* The HTML payload */
   const htmlButtons = `
@@ -124,13 +125,22 @@
 
       // Hook button to JSON
       const button = [...document.querySelectorAll(`*[aria-labelledby="${device}_tab"] .pageSpeed_button`)].pop()
+
+      // Regex to sanitise the filename
+      const regex = /[*+~.()'"!:@]/g
       if (device === 'desktop') {
         button.addEventListener('click', e => {
-          FileSaver.saveAs(new Blob([JSON.stringify(window.pageSpeedSaverDesktop)]), 'pagespeed-saver-json-desktop.json')
+          let filename = `${slugify(window.pageSpeedSaverDesktop.finalUrl)}-${slugify(window.pageSpeedSaverDesktop.configSettings.formFactor)}-${slugify(window.pageSpeedSaverDesktop.fetchTime)}.json`
+          filename = filename.replace(regex, '-')
+          console.log(`Saving as ${filename}`)
+          FileSaver.saveAs(new Blob([JSON.stringify(window.pageSpeedSaverDesktop)]), filename)
         })
       } else {
         button.addEventListener('click', e => {
-          FileSaver.saveAs(new Blob([JSON.stringify(window.pageSpeedSaverMobile)]), 'pagespeed-saver-json-mobile.json')
+          let filename = `${slugify(window.pageSpeedSaverMobile.finalUrl)}-${slugify(window.pageSpeedSaverMobile.configSettings.formFactor)}-${slugify(window.pageSpeedSaverMobile.fetchTime)}.json`
+          filename = filename.replace(regex, '-')
+          console.log(`Saving as ${filename}`)
+          FileSaver.saveAs(new Blob([JSON.stringify(window.pageSpeedSaverMobile)]), filename)
         })
       }
 
