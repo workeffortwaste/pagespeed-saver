@@ -270,7 +270,7 @@
         </div>
 
         <div class="pageSpeed_history__footer">
-          This data is saved using the <a target="_blank" href="https://defaced.dev/tools/pagespeed-saver/">PagedSpeed Saver Chrome Extension</a> from the last 100 reports generated. If you find this plugin useful please consider <a target="_blank" href="https://ko-fi.com/defaced/">donating</a>.
+          This data is saved using the <a target="_blank" href="https://defaced.dev/tools/pagespeed-saver/">PagedSpeed Saver Chrome Extension</a> from the last 100 reports generated. If you find this extension useful please consider <a target="_blank" href="https://ko-fi.com/defaced/">donating</a>.
         </div>
       </div>
   `
