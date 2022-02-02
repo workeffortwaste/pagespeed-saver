@@ -201,6 +201,10 @@
         color:black;
         padding-right:10px;
         word-break:break-all;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
       }
       @media only screen and (max-width: 900px) {
         .pageSpeed_history__reports__list__header span:last-of-type{
