@@ -1,12 +1,19 @@
 {
-    "manifest_version": 2,
-    "name": "PageSpeed Saver",
-    "version": "2.1.0",
-    "icons": { "128": "icon128.png"},
-    "description": "Quickly save your PageSpeed Insights reports to JSON.",
-    "web_accessible_resources": ["bundle.js"],
-    "content_scripts" : [{
-      "matches" : [ "https://pagespeed.web.dev/*"],
-      "js" : ["index.js"]
-    }]
-  }
+  "manifest_version": 3,
+  "name": "PageSpeed Saver",
+  "version": "2.1.0",
+  "icons": { "128": "icon128.png" },
+  "description": "Quickly save your PageSpeed Insights reports to JSON.",
+  "content_scripts": [
+    {
+      "matches": ["https://pagespeed.web.dev/*"],
+      "js": ["index.js"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["bundle.js"],
+      "matches": ["https://pagespeed.web.dev/*"]
+    }
+  ]
+}
