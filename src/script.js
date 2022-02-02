@@ -200,7 +200,7 @@
       .pageSpeed_history__reports__list__item span:nth-child(5){
         color:black;
         padding-right:10px;
-        work-break:break-all;
+        word-break:break-all;
       }
       @media only screen and (max-width: 900px) {
         .pageSpeed_history__reports__list__header span:last-of-type{
