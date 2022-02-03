@@ -1,5 +1,5 @@
 /**
- * PageSpeed Saver 2.1.0
+ * PageSpeed Saver 2.1.1
  * @defaced
  *
  * Source: https://github.com/workeffortwaste/pagespeed-saver/
