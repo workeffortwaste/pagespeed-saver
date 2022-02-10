@@ -5,7 +5,7 @@
 
 A Chrome Extension that adds a `Download Report` button to PageSpeed Insights performance reports allowing you to easily download the raw Lighthouse JSON data.
 
-**Like this project? Help support my projects and buy me a coffee via [ko-fi](https://ko-fi.com/defaced)**.
+**Like this project? Help support my projects and buy me a coffee via [Ko-fi](https://ko-fi.com/defaced) or sponsor me on [GitHub Sponsors](https://github.com/sponsors/workeffortwaste/)**.
 
 ## Getting Started
 
