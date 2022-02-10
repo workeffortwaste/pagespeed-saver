@@ -27,6 +27,10 @@ This extension adds a new `Open Report` button the main navigation which takes y
 
 This extension adds a new `Compare Reports` button the main navigation which takes you to the [Lighthouse CI Diff Viewer](https://googlechrome.github.io/lighthouse-ci/viewer/) where you can open two saved reports and see a comprehensive diff report.
 
+### Build
+
+To manually build the extension run `npm run build` to create an unpackaged extension in `./dist`.
+
 ## Author
 Chris Johnson - [defaced.dev](https://defaced.dev) - [@defaced](http://twitter.co.uk/defaced/)
 
