@@ -1,5 +1,5 @@
 /**
- * PageSpeed Saver 2.1.1
+ * PageSpeed Saver 2.1.2
  * @defaced
  *
  * Source: https://github.com/workeffortwaste/pagespeed-saver/
@@ -29,18 +29,6 @@
     reports: '++id, url, timestamp, device, score, json'
   })
 
-  /**
-   * HTML payload for the mobile and desktop download report buttons
-   * @returns {string} HTML
-   */
-  const payloadButtons = `
-    <button class="pageSpeed_button" role="tab" tabindex="-1">
-      <span class="pageSpeed_button__container">
-        <span class="pageSpeed_button__container__text">Download Report</span>
-      </span>
-      <span class="pageSpeed_button__container__background"></span>
-    </button>
-  `
   /**
    * CSS payload for unique styling for the HTML elements in this extension
    * @returns {string} HTML
@@ -108,18 +96,20 @@
       .pageSpeed_history__reports__list__item {
         display:grid;
         color:#5f6368;
-        grid-template-columns:94px 75px 50px 75px auto 46px 60px;
+        grid-template-columns:94px 75px 50px 75px auto 46px 79px;
       }
 
       .pageSpeed_history__reports__list__item__copy,
       .pageSpeed_history__reports__list__item__download{
         font-size: 12px;
         line-height: 20px;
-        color: #757575;
+        color: #0368ff;
         text-transform: uppercase;
-        font-weight: 500;
+        font-weight: 600;
         letter-spacing: 0.8px;
         cursor: pointer;
+        display: grid;
+        align-content: center; 
       }
 
       .pageSpeed_history{
@@ -130,13 +120,15 @@
         background-color: #fff;
         border: 1px solid #dadce0;
         box-shadow: none;
+        margin-bottom: 12px;
       }
 
       .pageSpeed_history__reports__list__item {
         font-size:14px;
         border-bottom: 1px solid #ebebeb;
         padding:8px;
-        padding-left:0;
+        padding-left: 0;
+        padding-right: 0;
         line-height:24px;
       }
 
@@ -149,54 +141,6 @@
         padding-left:0;
       }
 
-      .pageSpeed_button{
-        font-family: "Google Sans",Roboto,Arial,sans-serif;
-        line-height: 1.25rem;
-        font-size: .875rem;
-        letter-spacing: .0178571429em;
-        font-weight: 500;
-        text-transform: none;
-        min-width: auto;
-        background: none;
-        min-width: 90px;
-        display: flex;
-        flex: 1 0 auto;
-        justify-content: center;
-        box-sizing: border-box;
-        margin: 0;
-        border: none;
-        outline: none;
-        text-align: center;
-        white-space: nowrap;
-        cursor: pointer;
-        -webkit-appearance: none;
-        z-index: 1;
-        position:relative;
-      }
-
-      .pageSpeed_button__container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: inherit;
-        pointer-events: none;
-        place-self: center;
-      }
-
-      .pageSpeed_button__container__text {
-        color: #5f6368;
-        transition: 150ms color linear;
-        display: inline-block;
-        line-height: 1;
-        z-index: 2;
-      }
-
-      .pageSpeed_button:hover .pageSpeed_button__container__background{
-        background-color: #f8f9fa;
-        position: absolute;
-        width: 100%;
-        height: 100%;
-      }
       .pageSpeed_history__reports__list__item span:nth-child(5){
         color:black;
         padding-right:10px;
@@ -255,7 +199,7 @@
       <div class="pageSpeed_history">
         <div class="pageSpeed_history__header">
           <div><img src="https://www.gstatic.com/pagespeed/insights/ui/img/icon-lab.svg" alt="" data-iml="198727" style="width: 48px; height: 48px;" data-atf="false"></div>
-          <div><p>Your previous reports</p><p>Download or copy to the clipboard your previous PageSpeed Insights reports.</p></div>
+          <div><p>Your reports</p><p>Download or copy to the clipboard your PageSpeed Insights reports.</p></div>
         </div>
 
         <div class="pageSpeed_history__reports">
@@ -313,9 +257,6 @@
    * @param {obj} lighthouseData The Lighthouse report JSON
    */
   const lighthouseWatcher = async (lighthouseData) => {
-    /* Trigger the button observer for the incoming device type */
-    lighthouseData.configSettings.formFactor === 'desktop' ? buttonObserve('desktop') : buttonObserve('mobile')
-
     /* Save to history */
     const dbId = await db.reports.add({
       device: lighthouseData.configSettings.formFactor,
@@ -367,67 +308,6 @@
       }
     }
   })
-
-  /**
-   * Inject the mobile and desktop download report buttons into the DOM.
-   * @param {string} device The device name (mobile|desktop)
-   */
-  const buttonInject = (device) => {
-    /* If the pathname for the current state doesn't contain report then return */
-    if (!window.location.pathname.includes('report')) return
-
-    /* Fetch the most recent native button for the device param */
-    const button = [...document.querySelectorAll(`*[aria-labelledby="${device}_tab"] button#url_tab`)].pop()
-
-    /* Return if a current sibling (our button) exists */
-    if (button.nextElementSibling) { return }
-
-    /* Inject our button */
-    button.insertAdjacentHTML('afterend', escapeHTMLPolicy.createHTML(payloadButtons))
-
-    /* Select our injected button */
-    const newButton = button.nextElementSibling
-
-    /* Attach an event to our button */
-    newButton.addEventListener('click', async (e) => {
-      const id = saver[device]
-      const obj = await db.reports.get(id)
-      const json = JSON.parse(obj.json)
-
-      /* Regex for filename sanitisation */
-      const regex = /[*+~.()'"!:@]/g
-
-      let filename = `${slugify(json.finalUrl)}-${slugify(json.configSettings.formFactor)}-${slugify(json.fetchTime)}.json`
-      filename = filename.replace(regex, '-')
-
-      /* Save the file */
-      FileSaver.saveAs(new Blob([JSON.stringify(json)]), filename)
-    })
-  }
-
-  /**
-   * Observe the specified tab panel for changes to automatically reinject our report buttons
-   * @param {string} device The device name (mobile|desktop)
-   */
-  const buttonObserve = (device) => {
-    /* The most recent tab panel elements to watch for changes */
-    const num = device === 'mobile' ? 0 : 1
-    const target = [...document.querySelectorAll('div[role="tabpanel"] c-wiz')].slice(-2)[num]
-
-    const callback = async (mutationsList, observer) => {
-      /* Destroy the observer */
-      observer.disconnect()
-
-      /* A quick pause to wait for the DOM to render changes */
-      await sleep(1000)
-
-      /* Inject our button */
-      buttonInject(device)
-    }
-
-    const observer = new MutationObserver(callback)
-    observer.observe(target, { attributes: true, childList: true, subtree: true })
-  }
 
   /**
    * ES6 sleep
@@ -506,10 +386,6 @@
    */
   const formObserve = () => {
     const callback = async (mutationsList, observer) => {
-      /* Trigger the tab panel button injections */
-      buttonInject('mobile')
-      buttonInject('desktop')
-
       if (document.querySelectorAll('.pageSpeed_history').length === 0) {
         const formElement = [...document.querySelectorAll('form')].pop()
         formElement.insertAdjacentHTML('afterend', escapeHTMLPolicy.createHTML(payloadHistory()))
