@@ -1,11 +1,11 @@
 /**
- * PageSpeed Saver 2.1.2
+ * PageSpeed Saver 2.2.0
  * @defaced
  *
  * Source: https://github.com/workeffortwaste/pagespeed-saver/
- * Support: https://ko-fi.com/defaced/
+ * Support:https://github.com/sponsors/workeffortwaste/
  * */
-(() => {
+(async () => {
   /* Init */
   const saver = {} /* Store the most recent report ids for mobile and desktop devices. */
   let rows = '' /* Store the HTML for reinjecting the previous report rows into the DOM. */
@@ -101,15 +101,17 @@
 
       .pageSpeed_history__reports__list__item__copy,
       .pageSpeed_history__reports__list__item__download{
-        font-size: 12px;
+        font-size: 14px;
         line-height: 20px;
         color: #0368ff;
         text-transform: uppercase;
-        font-weight: 600;
-        letter-spacing: 0.8px;
+        font-weight: 500;
         cursor: pointer;
         display: grid;
-        align-content: center; 
+        align-content: center;
+        font-family: 'Google Sans' !important;
+        text-transform: capitalize;
+        justify-content: end;
       }
 
       .pageSpeed_history{
@@ -121,6 +123,21 @@
         border: 1px solid #dadce0;
         box-shadow: none;
         margin-bottom: 12px;
+        position: fixed;
+        top: 80px;
+        right: 16px;
+        z-index: 99;
+        display:none;
+        max-height: calc(100vh - 200px);
+        overflow-y: auto;
+      }
+      
+      .pageSpeed_history--open{
+        display:block;
+      }
+
+      .pageSpeed_history * {
+        font-family: Roboto, Arial, sans-serif;
       }
 
       .pageSpeed_history__reports__list__item {
@@ -204,7 +221,7 @@
 
         <div class="pageSpeed_history__reports">
           <div class="pageSpeed_history__reports__header">
-            <div>Previous Reports (${collapsed ? LIMIT_COLLAPSED : LIMIT_EXPANDED})</div><div class="pageSpeed_history__reports__header__more">${collapsed ? 'View More Reports' : 'View Less Reports'}</div>
+            <div>Previous Reports (${LIMIT_COLLAPSED})</div><div class="pageSpeed_history__reports__header__more">View More Reports</div>
           </div>
           <div class="pageSpeed_history__reports__list">
             <div class="pageSpeed_history__reports__list__header">
@@ -218,7 +235,7 @@
         </div>
 
         <div class="pageSpeed_history__footer">
-          This data is saved using the <a target="_blank" href="https://defaced.dev/tools/pagespeed-saver/">PagedSpeed Saver Chrome Extension</a> from the last 100 reports generated. If you find this extension useful please consider <a target="_blank" href="https://ko-fi.com/defaced/">donating</a>.
+          This data is saved using the <a target="_blank" href="https://defaced.dev/tools/pagespeed-saver/">PagedSpeed Saver Chrome Extension</a> from the last 100 reports generated. If you find this extension useful please consider <a target="_blank" href="https://github.com/sponsors/workeffortwaste/">supporting</a>.
         </div>
       </div>
   `
@@ -282,11 +299,8 @@
     fakeDom.querySelector('div:last-of-type').remove()
     rows = fakeDom.body.innerHTML
 
-    /* Update the real history list. */
-    const formElement = [...document.querySelectorAll('form')].pop()
-
-    /* Trigger a refresh by modifying the form element with a new class */
-    formElement.classList.add('refresh')
+    const targetElement = document.querySelector('body')
+    historyInject(targetElement)
   }
 
   /**
@@ -294,17 +308,33 @@
    * This is where PageSpeed Insights streams in its data.
    */
   Object.defineProperties(window, {
-    __LIGHTHOUSE_PROXY__: {
+    __LIGHTHOUSE_MOBILE_PROXY__: {
       value: {},
       writable: true
     },
-    __LIGHTHOUSE_JSON__: {
+    __LIGHTHOUSE_MOBILE_JSON__: {
       get: function () {
-        return this.__LIGHTHOUSE_PROXY__
+        return this.__LIGHTHOUSE_MOBILE_PROXY__
       },
       set: function (val) {
-        this.__LIGHTHOUSE_PROXY__ = val
-        lighthouseWatcher(this.__LIGHTHOUSE_PROXY__)
+        this.__LIGHTHOUSE_MOBILE_PROXY__ = val
+        lighthouseWatcher(this.__LIGHTHOUSE_MOBILE_PROXY__)
+      }
+    }
+  })
+
+  Object.defineProperties(window, {
+    __LIGHTHOUSE_DESKTOP_PROXY__: {
+      value: {},
+      writable: true
+    },
+    __LIGHTHOUSE_DESKTOP_JSON__: {
+      get: function () {
+        return this.__LIGHTHOUSE_DESKTOP_PROXY__
+      },
+      set: function (val) {
+        this.__LIGHTHOUSE_DESKTOP_PROXY__ = val
+        lighthouseWatcher(this.__LIGHTHOUSE_DESKTOP_PROXY__)
       }
     }
   })
@@ -321,6 +351,7 @@
   /**
    * HTML injection helper to allow .innerHTML to function with the documents current security settings
    */
+  // eslint-disable-next-line no-undef
   const escapeHTMLPolicy = trustedTypes.createPolicy('forceInner', {
     createHTML: (content) => content
   })
@@ -346,6 +377,7 @@
 
     /* Get element */
     const historyContainer = document.querySelector('.pageSpeed_history__reports__list__header')
+    while (historyContainer.nextSibling) historyContainer.nextSibling.remove()
     historyContainer.insertAdjacentHTML('afterend', escapeHTMLPolicy.createHTML(rows))
 
     /* Unblock calls to this function */
@@ -361,11 +393,11 @@
         /* Regex for file sanitisation */
         const regex = /[*+~.()'"!:@]/g
 
-        let filename = `${slugify(json.finalUrl)}-${slugify(json.configSettings.formFactor)}-${slugify(json.fetchTime)}.json`
+        let filename = `${slugify(json.finalUrl)}-${slugify(json.configSettings.formFactor)}-${slugify(json.fetchTime)}`
         filename = filename.replace(regex, '-')
 
         /* Save the file */
-        FileSaver.saveAs(new Blob([JSON.stringify(json)]), filename)
+        FileSaver.saveAs(new Blob([JSON.stringify(json)]), `${filename}.json`)
       })
     })
 
@@ -381,60 +413,25 @@
   }
 
   /**
-   * Observe the form element for changes to automatically reinject our previous report container.
-   * Also triggers the button injection to catch an edge case scenario where buttons did not get reinjected into the DOM.
-   */
-  const formObserve = () => {
-    const callback = async (mutationsList, observer) => {
-      if (document.querySelectorAll('.pageSpeed_history').length === 0) {
-        const formElement = [...document.querySelectorAll('form')].pop()
-        formElement.insertAdjacentHTML('afterend', escapeHTMLPolicy.createHTML(payloadHistory()))
-
-        /* Make the more button work */
-        document.querySelector('.pageSpeed_history__reports__header__more').addEventListener('click', historyMore)
-
-        /* Add the row data to the DOM */
-        historyInject(formElement)
-      }
-
-      if ((mutationsList.map(e => e.attributeName).includes('class'))) {
-        /* Remove the observer */
-        observer.disconnect()
-
-        /* Remove the current pagespeed history from the DOM */
-        document.querySelector('.pageSpeed_history').remove()
-
-        /* Reinject the history container and reports in the correct place */
-        const formElement = [...document.querySelectorAll('form')].pop()
-        formElement.insertAdjacentHTML('afterend', escapeHTMLPolicy.createHTML(payloadHistory()))
-
-        /* Make the more button work */
-        document.querySelector('.pageSpeed_history__reports__header__more').addEventListener('click', historyMore)
-
-        /* Add the row data to the DOM */
-        historyInject(formElement)
-
-        /* Start the form observer again to listen for changes on the correct form element */
-        formObserve()
-      }
-    }
-
-    const observer = new MutationObserver(callback)
-
-    /* Fetch the last form element in the DOM */
-    const formElement = [...document.querySelectorAll('form')].slice(-1)[0]
-    observer.observe(formElement, { attributes: true, childList: true, subtree: true })
-  }
-
-  /**
    * Toggle the collapsed reports between the upper and lower limits.
   */
   const historyMore = () => {
     collapsed = !collapsed
     /* Update the real history list. Removing the element to triggering our observer */
     rows = '' /* Clear the local rows obj to force a refresh from the db' */
-    const formElement = [...document.querySelectorAll('form')].pop()
-    formElement.classList.add('refresh')
+
+    const header = document.querySelector('.pageSpeed_history__reports__header')
+
+    const template = `<div>Previous Reports (${collapsed ? LIMIT_COLLAPSED : LIMIT_EXPANDED})</div><div class="pageSpeed_history__reports__header__more">${collapsed ? 'View More Reports' : 'View Less Reports'}</div>`
+    header.innerHTML = escapeHTMLPolicy.createHTML(template)
+
+    document.querySelector('.pageSpeed_history__reports__header__more').addEventListener('click', historyMore)
+
+    /* Select the target element */
+    const targetElement = document.querySelector('body')
+
+    /* Add the row data to the DOM */
+    historyInject(targetElement)
   }
 
   /**
@@ -449,32 +446,44 @@
     window.location.href = 'https://pagespeed.web.dev/'
   })
 
+  await sleep(500)
+
   /* Add styles to head */
   document.head.insertAdjacentHTML('beforeend', escapeHTMLPolicy.createHTML(payloadStyles))
 
   /* Add additional menu buttons */
-  const link = document.querySelector('header > div')
+  const link = document.querySelector('header > span > div:last-of-type ')
   const linkOpen = link.cloneNode(true)
   const linkDiff = link.cloneNode(true)
+  const linkHistory = link.cloneNode(true)
+
   linkOpen.querySelector('a').setAttribute('href', 'https://googlechrome.github.io/lighthouse/viewer/')
-  linkOpen.querySelector('span').textContent = 'Open Report'
+  linkOpen.querySelector('span').textContent = 'Open'
   linkDiff.querySelector('a').setAttribute('href', 'https://googlechrome.github.io/lighthouse-ci/viewer/')
-  linkDiff.querySelector('span').textContent = 'Compare Reports'
+  linkDiff.querySelector('span').textContent = 'Compare'
+  linkHistory.querySelector('a').setAttribute('href', '#')
+  linkHistory.querySelector('span').textContent = 'Download'
+  linkHistory.addEventListener('click', (e) => {
+    e.preventDefault()
+    const history = document.querySelector('.pageSpeed_history')
+    if (history) {
+      history.classList.toggle('pageSpeed_history--open')
+    }
+  })
+
+  link.before(linkHistory)
   link.before(linkOpen)
   link.before(linkDiff)
 
-  /* Select the form */
-  const formElement = [...document.querySelectorAll('form')].pop()
+  /* Select the target element */
+  const targetElement = document.querySelector('body')
 
   /* Inject our history content */
-  formElement.insertAdjacentHTML('afterend', escapeHTMLPolicy.createHTML(payloadHistory()))
+  targetElement.insertAdjacentHTML('afterend', escapeHTMLPolicy.createHTML(payloadHistory()))
 
   /* Make the more button work */
   document.querySelector('.pageSpeed_history__reports__header__more').addEventListener('click', historyMore)
 
   /* Add the row data to the DOM */
-  historyInject(formElement)
-
-  /* Start the form observer for the first time */
-  formObserve()
+  historyInject(targetElement)
 })()
