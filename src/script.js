@@ -8,7 +8,6 @@
 (async () => {
   /* Init */
   const saver = {} /* Store the most recent report ids for mobile and desktop devices. */
-  let rows = '' /* Store the HTML for reinjecting the previous report rows into the DOM. */
   let injecting = false /* Block multiple simulatations calls to inject previous report rows */
   let collapsed = true /* Toggle the collapsed report rows between LIMIT_COLLAPSED and LIMIT_EXPANDED */
 
@@ -289,16 +288,6 @@
     /* Add the report ID to the window object so we know which is the most recent reports */
     saver[lighthouseData.configSettings.formFactor] = dbId
 
-    /* Get the HTML template for the new report */
-    const template = templateHistoryRows(lighthouseData.fetchTime.substring(0, 10), (lighthouseData.categories.performance.score * 100).toFixed(0), lighthouseData.configSettings.formFactor, lighthouseData.finalUrl, dbId, lighthouseData.fetchTime.substring(11, 19))
-
-    /* Add the report to the cached history list */
-    rows = template + rows
-    const parser = new DOMParser()
-    const fakeDom = parser.parseFromString(escapeHTMLPolicy.createHTML(rows), 'text/html')
-    fakeDom.querySelector('div:last-of-type').remove()
-    rows = fakeDom.body.innerHTML
-
     const targetElement = document.querySelector('body')
     historyInject(targetElement)
   }
@@ -364,16 +353,14 @@
     if (injecting) { return }
     injecting = true
 
-    /* If our local rows HTML is not set then fetch fresh data. */
-    if (!rows.length) {
-      /* Get all the in the database reversed and limited */
-      const all = await db.reports.reverse().limit(collapsed ? LIMIT_COLLAPSED : LIMIT_EXPANDED).toArray()
-      all.forEach(e => {
-        const row = templateHistoryRows(e.timestamp.substring(0, 10), e.score, e.device, e.url, e.id, e.timestamp.substring(11, 19))
-        /* Add the HTML to the rows variable. */
-        rows += row
-      })
-    }
+    /* Get all the in the database reversed and limited */
+    const all = await db.reports.reverse().limit(collapsed ? LIMIT_COLLAPSED : LIMIT_EXPANDED).toArray()
+    let rows = ''
+    all.forEach(e => {
+      const row = templateHistoryRows(e.timestamp.substring(0, 10), e.score, e.device, e.url, e.id, e.timestamp.substring(11, 19))
+      /* Add the HTML to the rows variable. */
+      rows += row
+    })
 
     /* Get element */
     const historyContainer = document.querySelector('.pageSpeed_history__reports__list__header')
@@ -417,8 +404,6 @@
   */
   const historyMore = () => {
     collapsed = !collapsed
-    /* Update the real history list. Removing the element to triggering our observer */
-    rows = '' /* Clear the local rows obj to force a refresh from the db' */
 
     const header = document.querySelector('.pageSpeed_history__reports__header')
 
